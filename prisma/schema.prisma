@@ -45,6 +45,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  stores Store[]
+
 }
 
 model VerificationToken {
@@ -53,4 +55,56 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Store {
+  id Int @id @default(autoincrement())
+  name String
+  slug String
+  products Product[]
+  user User @relation(fields: [user_id], references: [id])
+  user_id String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([name, slug])
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  
+  name String
+  slug String
+  description String
+
+  categories CategoriesOnProducts[]
+  shop Store @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  shop_id Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([name, slug])
+}
+
+model ProductCategory {
+  id Int @id @default(autoincrement())
+  name String
+  slug String
+
+  products CategoriesOnProducts[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([name, slug])
+}
+
+model CategoriesOnProducts {
+  product Product @relation(fields: [product_id], references: [id], onUpdate: Cascade)
+  product_id Int
+  productCategory ProductCategory @relation(fields: [product_category_id], references: [id], onUpdate: Cascade)
+  product_category_id Int
+
+  @@id([product_id, product_category_id])
 }
