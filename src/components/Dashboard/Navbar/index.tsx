@@ -3,6 +3,7 @@ import Link from "next/link";
 import Menu from "./Menu";
 import { useParams } from "next/navigation";
 import { getStores } from "@/fetchers/store";
+import CreateNewStoreDialog from "./CreateNewStore";
 
 interface Props {}
 
@@ -19,6 +20,11 @@ const DashboardNavbar: React.FC<Props> = async () => {
           Dashboard
         </Link>
         <Menu stores={stores} />
+        {stores.length == 0 && (
+          <div className="ml-auto">
+            <CreateNewStoreDialog />
+          </div>
+        )}
       </nav>
     </header>
   );

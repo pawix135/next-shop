@@ -27,6 +27,13 @@ export const CreateProductSchema = z.object({
   price: ProductPriceSchema,
 });
 
+export const RemoveProductSchema = z.object({
+  id: z.number(),
+  shop_slug: z.string(),
+});
+
+export type RemoveProductBody = z.infer<typeof RemoveProductSchema>;
+
 export type ProductColor = z.infer<typeof ProductColorSchema>;
 export type ProductColors = z.infer<typeof ProductColorsSchema>;
 export type CreateProduct = z.infer<typeof CreateProductSchema>;

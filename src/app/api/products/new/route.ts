@@ -2,6 +2,7 @@ import { auth } from "@/auth/auth";
 import { createSlug } from "@/lib/slug";
 import { CreateProductSchema } from "@/validators/product";
 import { prisma } from "@/db/prisma";
+import { revalidatePath } from "next/cache";
 
 export const POST = async (req: Request) => {
   try {
@@ -20,6 +21,7 @@ export const POST = async (req: Request) => {
       },
       select: {
         id: true,
+        slug: true,
       },
     });
 
@@ -78,6 +80,7 @@ export const POST = async (req: Request) => {
       });
     }
 
+    revalidatePath(`/dashboard/store/${shop.slug}/products`, "page");
     return Response.json(newProduct);
   } catch (error) {
     console.error(error);

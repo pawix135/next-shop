@@ -26,8 +26,6 @@ const StoreSelector: React.FC<Props> = ({ stores }) => {
   };
 
   let selectedStore = useMemo(() => {
-    console.log(path, slug);
-
     return slug ?? "";
   }, [slug, path]);
 
