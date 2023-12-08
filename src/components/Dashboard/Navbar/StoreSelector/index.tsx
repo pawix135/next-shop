@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Route } from "next";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 interface Props {
   stores: { name: string; slug: string }[];
@@ -17,17 +18,22 @@ interface Props {
 
 const StoreSelector: React.FC<Props> = ({ stores }) => {
   let nav = useRouter();
+  let { slug } = useParams<{ slug: string }>();
   let path = usePathname();
-
-  console.log(path);
 
   const changeStore = (slug: string) => {
     nav.push(("/dashboard/store/" + slug) as Route);
   };
 
+  let selectedStore = useMemo(() => {
+    console.log(path, slug);
+
+    return slug ?? "";
+  }, [slug, path]);
+
   return (
     <>
-      <Select onValueChange={changeStore}>
+      <Select onValueChange={changeStore} value={selectedStore}>
         <SelectTrigger className={cn("w-[150px]")}>
           <SelectValue placeholder="Select store" />
         </SelectTrigger>

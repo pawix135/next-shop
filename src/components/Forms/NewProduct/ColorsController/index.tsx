@@ -46,7 +46,7 @@ const ColorsController: React.FC = () => {
                       name={`colors.${colorSectionI}.colors`}
                       render={(arrHelpers) => {
                         return (
-                          <div className="grid grid-flow-row grid-cols-2 gap-5 flex-wrap border-2 p-2 shadow-sm shadow-primary-foreground">
+                          <div className="grid grid-flow-row grid-cols-2 gap-5 flex-wrap border-2 p-2 shadow-md shadow-black">
                             {colorSection.colors.map((color, colorI) => {
                               return (
                                 <div

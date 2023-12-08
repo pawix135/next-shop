@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import ColorsController from "./ColorsController";
 import { toFormikValidate, toFormikValidationSchema } from "zod-formik-adapter";
+import { useRouter } from "next/navigation";
 
 export interface NewProduct {
   name: string;
@@ -39,6 +40,7 @@ interface Props {
 
 const NewProductForm: React.FC<Props> = ({ store_slug }) => {
   let { toast } = useToast();
+  let nav = useRouter();
 
   let initialValues: CreateProduct = {
     category: "",
@@ -61,6 +63,8 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
 
       let data = await response.json();
       console.log(data);
+
+      nav.replace(`/dashboard/store/${store_slug}/products/${data.slug}`);
     } catch (error) {
       toast({
         title: "Error",
@@ -72,7 +76,7 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex mt-2">
       <Formik
         initialValues={initialValues}
         onSubmit={createProduct}
@@ -80,9 +84,9 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
       >
         {({ values, setFieldValue, ...form }) => {
           return (
-            <div className="flex flex-row gap-5 w-full">
+            <div className="flex flex-row gap-5 w-full ">
               <FormController />
-              <Form className="flex flex-col gap-5">
+              <Form className="flex flex-col gap-5 border-secondary border-2 w-full p-2 rounded-md">
                 <FormikInput name="name" id="name" type="text" label="Name" />
                 <FormikInput
                   name="description"

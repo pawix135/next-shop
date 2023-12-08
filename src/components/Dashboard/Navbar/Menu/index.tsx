@@ -7,11 +7,20 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-import React from "react";
+import { useParams } from "next/navigation";
+import React, { useMemo } from "react";
+import StoreSelector from "../StoreSelector";
+import CreateNewStoreDialog from "../CreateNewStore";
+import { Store } from "@prisma/client";
+import Link from "next/link";
+import { Route } from "next";
 
 const components: { title: string; href: string; description: string }[] = [
+  {
+    title: "All products",
+    href: "/products/",
+    description: "List of all products",
+  },
   {
     title: "Create new",
     href: "/products/new",
@@ -19,57 +28,52 @@ const components: { title: string; href: string; description: string }[] = [
   },
 ];
 
-const Menu = () => {
-  let path = usePathname();
+interface Props {
+  stores: Store[];
+}
+const Menu: React.FC<Props> = ({ stores }) => {
+  let { slug } = useParams<{ slug: string }>();
+
+  let url = useMemo(() => {
+    return "/dashboard/store/" + slug;
+  }, [slug]);
 
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Products</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {components.map((component) => (
-                <ListItem
-                  key={component.title}
-                  title={component.title}
-                  href={path + component.href}
-                >
-                  {component.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <div className="flex flex-row gap-5">
+      {stores.length === 0 && <CreateNewStoreDialog />}
+      <StoreSelector stores={stores} />
+      {slug && (
+        <>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                    {components.map((component) => (
+                      <NavigationMenuLink asChild key={component.title}>
+                        <Link
+                          href={(url + component.href) as Route}
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        >
+                          <div className="text-sm font-medium leading-none">
+                            {component.title}
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            {component.description}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </>
+      )}
+    </div>
   );
 };
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
 
 export default Menu;
