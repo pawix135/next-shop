@@ -1,3 +1,5 @@
+import DashboardNavbar from "@/components/Dashboard/Navbar";
+import Menu from "@/components/Dashboard/Navbar/Menu";
 import { getStore } from "@/fetchers/store";
 import { notFound } from "next/navigation";
 
@@ -11,7 +13,13 @@ const StorePage: React.FC<Props> = async ({ params: { slug } }) => {
 
   if (!store) notFound();
 
-  return <div>store page {slug}</div>;
+  return (
+    <main>
+      <DashboardNavbar>
+        <Menu />
+      </DashboardNavbar>
+    </main>
+  );
 };
 
 export default StorePage;

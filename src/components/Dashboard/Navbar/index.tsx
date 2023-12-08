@@ -1,37 +1,24 @@
 import { auth } from "@/auth/auth";
-import { Button, buttonVariants } from "@/components/ui/button";
 import { prisma } from "@/db/prisma";
 import Link from "next/link";
+import StoreSelector from "./StoreSelector";
+import Menu from "./Menu";
+import CreateNewStoreDialog from "./CreateNewStore";
 
-const getStoresCount = async (id: string) => {
-  let stores = await prisma.store.count({
-    where: {
-      user_id: id,
-    },
-  });
-  return stores;
-};
+interface Props {
+  children?: React.ReactNode;
+}
 
-const DashboardNavbar: React.FC = async () => {
+const DashboardNavbar: React.FC<Props> = async ({ children }) => {
   let session = await auth();
 
-  let storeCount = await getStoresCount(session?.user!.id!);
-
   return (
-    <header>
-      <nav>
-        {storeCount == 0 ? (
-          <Link
-            className={buttonVariants({ variant: "default" })}
-            href={"/dashboard/store/new"}
-          >
-            Create store
-          </Link>
-        ) : (
-          <select name="" id="">
-            <option value="test">Test 1</option>
-          </select>
-        )}
+    <header className="p-3 bg-secondary">
+      <nav className="flex flex-row items-center gap-5">
+        <Link href={"/dashboard"} className="text-xl">
+          Dashboard
+        </Link>
+        {children && children}
       </nav>
     </header>
   );
