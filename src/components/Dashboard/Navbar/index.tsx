@@ -1,16 +1,17 @@
 import { auth } from "@/auth/auth";
-import { prisma } from "@/db/prisma";
 import Link from "next/link";
-import StoreSelector from "./StoreSelector";
 import Menu from "./Menu";
+import { useParams } from "next/navigation";
+import { getStores } from "@/fetchers/store";
 import CreateNewStoreDialog from "./CreateNewStore";
 
-interface Props {
-  children?: React.ReactNode;
-}
+interface Props {}
 
-const DashboardNavbar: React.FC<Props> = async ({ children }) => {
+const DashboardNavbar: React.FC<Props> = async () => {
   let session = await auth();
+
+  let stores =
+    (await getStores(session?.user!.id!, { name: true, slug: true })) ?? [];
 
   return (
     <header className="p-3 bg-secondary">
@@ -18,7 +19,12 @@ const DashboardNavbar: React.FC<Props> = async ({ children }) => {
         <Link href={"/dashboard"} className="text-xl">
           Dashboard
         </Link>
-        {children && children}
+        <Menu stores={stores} />
+        {stores.length == 0 && (
+          <div className="ml-auto">
+            <CreateNewStoreDialog />
+          </div>
+        )}
       </nav>
     </header>
   );

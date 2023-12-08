@@ -84,6 +84,8 @@ model Product {
   shop Store @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   shop_id Int
 
+  price Float @default(0.00)
+
   color_sets ColorsSetOnProduct[]
 
   created_at DateTime @default(now())
@@ -97,7 +99,7 @@ model ColorSet {
 
   name String
 
-  colors ColorsOnColorSet[]
+  colors Color[]
   products ColorsSetOnProduct[]
 
   @@unique([name])
@@ -109,7 +111,8 @@ model Color {
   name String
   value String
 
-  color_set ColorsOnColorSet[]
+  color_set ColorSet @relation(fields: [color_set_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  color_set_id Int
 
   @@unique([value, name])
 }
@@ -127,28 +130,19 @@ model ProductCategory {
   @@unique([name, slug])
 }
 
-model ColorsOnColorSet {
-  color Color @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  color_id Int
-  color_set ColorSet @relation(fields: [color_set_id], references: [id], onDelete: Cascade, onUpdate:  Cascade)
-  color_set_id Int
-
-  @@id([color_id, color_set_id])
-}
-
 model ColorsSetOnProduct {
-  product Product @relation(fields: [product_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   product_id Int
-  color_set ColorSet @relation(fields: [color_set_id], references: [id])
+  color_set ColorSet @relation(fields: [color_set_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   color_set_id Int
 
   @@id([product_id, color_set_id])
 }
 
 model CategoriesOnProducts {
-  product Product @relation(fields: [product_id], references: [id], onUpdate: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   product_id Int
-  productCategory ProductCategory @relation(fields: [product_category_id], references: [id], onUpdate: Cascade)
+  productCategory ProductCategory @relation(fields: [product_category_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   product_category_id Int
 
   @@id([product_id, product_category_id])

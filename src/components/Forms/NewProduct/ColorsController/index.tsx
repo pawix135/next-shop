@@ -28,11 +28,13 @@ const ColorsController: React.FC = () => {
                         name={`colors.${colorSectionI}.name`}
                         id={`color-${colorSectionI}`}
                         type="text"
+                        label="Color set name"
                       />
                       <Button
                         variant={"destructive"}
                         size={"icon"}
                         type="button"
+                        className="self-end"
                         onClick={() => {
                           colorsArrHelpers.remove(colorSectionI);
                         }}
@@ -44,7 +46,7 @@ const ColorsController: React.FC = () => {
                       name={`colors.${colorSectionI}.colors`}
                       render={(arrHelpers) => {
                         return (
-                          <div className="grid grid-flow-row grid-cols-3 gap-5 flex-wrap border-2 p-2 shadow-sm shadow-primary-foreground">
+                          <div className="grid grid-flow-row grid-cols-2 gap-5 flex-wrap border-2 p-2 shadow-md shadow-black">
                             {colorSection.colors.map((color, colorI) => {
                               return (
                                 <div
@@ -59,11 +61,6 @@ const ColorsController: React.FC = () => {
                                       return;
                                     }}
                                     onBlur={(e: any) => {
-                                      console.log(
-                                        `colors.${colorSectionI}.colors.${colorI}.value`,
-                                        e.target.value
-                                      );
-
                                       setFieldValue(
                                         `colors.${colorSectionI}.colors.${colorI}.value`,
                                         e.target.value
@@ -73,9 +70,11 @@ const ColorsController: React.FC = () => {
                                   <FormikInput
                                     name={`colors.${colorSectionI}.colors.${colorI}.name`}
                                     id={`colors-${colorSectionI}-input-${colorI}`}
+                                    label="Color name"
                                   />
                                   <Button
                                     type="button"
+                                    className="self-end"
                                     variant={"destructive"}
                                     size={"icon"}
                                     onClick={() => {
@@ -88,7 +87,7 @@ const ColorsController: React.FC = () => {
                               );
                             })}
                             <Button
-                              className="w-[50px]"
+                              className="w-[50px] self-center"
                               type="button"
                               onClick={() => {
                                 arrHelpers.push({

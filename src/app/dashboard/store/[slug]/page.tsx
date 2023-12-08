@@ -13,13 +13,7 @@ const StorePage: React.FC<Props> = async ({ params: { slug } }) => {
 
   if (!store) notFound();
 
-  return (
-    <main>
-      <DashboardNavbar>
-        <Menu />
-      </DashboardNavbar>
-    </main>
-  );
+  return <section></section>;
 };
 
 export default StorePage;

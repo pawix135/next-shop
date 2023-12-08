@@ -2,7 +2,7 @@ import { auth } from "@/auth/auth";
 import { createSlug } from "@/lib/slug";
 import { newStoreSchema } from "@/validators/store";
 import { prisma } from "@/db/prisma";
-import xd from "next-auth/next";
+import { revalidatePath } from "next/cache";
 
 export const POST = async (request: Request) => {
   try {
@@ -22,9 +22,8 @@ export const POST = async (request: Request) => {
       },
     });
 
-    console.log(newStore);
-
     let storeUrl = new URL("/dashboard/store/" + newStore.slug, request.url);
+    revalidatePath("/dashboard", "layout");
     return Response.json({
       ok: true,
       redirect_uri: storeUrl,
