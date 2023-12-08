@@ -2,13 +2,6 @@
 
 import { Input, InputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useField } from "formik";
 
 interface Props extends InputProps {
@@ -27,28 +20,7 @@ const FormikInput: React.FC<Props> = ({ label, selectOptions, ...props }) => {
           <span className="text-red-500">{meta.error}</span>
         )}
       </Label>
-      {props.type == "select" ? (
-        <Select
-          onValueChange={(v) => {
-            helpers.setValue(v);
-          }}
-        >
-          <SelectTrigger id={props.id}>
-            <SelectValue placeholder={props.placeholder ?? ""} />
-          </SelectTrigger>
-          <SelectContent aria-multiselectable>
-            {selectOptions?.map((item) => {
-              return (
-                <SelectItem value={item.value} key={item.value}>
-                  {item.text}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      ) : (
-        <Input {...field} {...props} id={props.id} />
-      )}
+      <Input {...field} {...props} id={props.id} />
     </div>
   );
 };

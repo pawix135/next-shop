@@ -1,4 +1,5 @@
 import NewProductForm from "@/components/Forms/NewProduct";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {
@@ -7,9 +8,11 @@ interface Props {
 }
 
 const NewProductPage: React.FC<Props> = ({ params: { slug } }) => {
+  if (!slug) return notFound();
+
   return (
     <main className="container mx-auto ">
-      <NewProductForm />
+      <NewProductForm store_slug={slug} />
     </main>
   );
 };
