@@ -8,6 +8,11 @@ interface Props {
     slug: string;
   };
 }
+
+export const metadata = {
+  title: "Products",
+};
+
 const ProductsPage: React.FC<Props> = async ({ params: { slug } }) => {
   let products = await getProducts({ store_slug: slug });
 
