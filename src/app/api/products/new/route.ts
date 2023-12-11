@@ -1,8 +1,15 @@
 import { auth } from "@/auth/auth";
 import { createSlug } from "@/lib/slug";
-import { CreateProductSchema } from "@/validators/product";
+import {
+  CreateProductSchema,
+  ProductColorAttribute,
+  ProductSizeAttribute,
+} from "@/validators/product";
 import { prisma } from "@/db/prisma";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
+
+export const revalidate = 0;
 
 export const POST = async (req: Request) => {
   try {
@@ -27,61 +34,114 @@ export const POST = async (req: Request) => {
 
     if (!shop) throw Error("Shop with given slug not found!");
 
+    let sizesSection = await Promise.all(
+      validate.sections.map((section) => {
+        let sizes = section.attributes.filter(
+          (att) => att.type == "sizes"
+        ) as ProductSizeAttribute[];
+        console.log(sizes);
+
+        return sizes.map((size) => {
+          return {
+            type: size.type,
+            colors: {
+              createMany: {
+                data: size.sizes,
+              },
+            },
+          };
+        });
+      })
+    );
+
+    let colorsSection = await Promise.all(
+      validate.sections.map((section) => {
+        let colors = section.attributes.filter(
+          (att) => att.type == "colors"
+        ) as ProductColorAttribute[];
+
+        return {
+          name: section.name,
+          attributes: {
+            create: [
+              ...colors.map((color) => {
+                return {
+                  type: color.type,
+                  colors: {
+                    createMany: {
+                      data: color.colors,
+                    },
+                  },
+                };
+              }),
+              ...sizesSection[0],
+            ],
+          },
+        };
+      })
+    );
+
+    console.log(colorsSection);
+
     let newProduct = await prisma.product.create({
       data: {
         name: validate.name,
         description: validate.description,
         slug: createSlug(validate.name),
         price: validate.price,
-        shop_id: shop.id,
+        shop_id: shop!.id,
         categories: {
           create: {
-            productCategory: {
-              create: {
-                name: validate.category,
-                slug: createSlug(validate.category),
-              },
-            },
+            name: validate.category,
+            slug: createSlug(validate.category),
           },
+        },
+        sections: {
+          create: [...colorsSection],
         },
       },
     });
 
-    if (validate.colors.length > 0) {
-      let createColorSets = await prisma.$transaction([
-        ...validate.colors.map((att) => {
-          return prisma.colorSet.create({
-            data: {
-              name: att.name,
-              colors: {
-                createMany: {
-                  data: att.colors,
-                },
-              },
-            },
-            select: { id: true },
-          });
-        }),
-      ]);
+    // let xd =await prisma.$transaction(async (transactionManager) => {
 
-      await prisma.product.update({
-        where: {
-          id: newProduct.id,
-        },
-        data: {
-          color_sets: {
-            createMany: {
-              data: [
-                ...createColorSets.map((set) => ({ color_set_id: set.id })),
-              ],
-            },
-          },
-        },
-      });
-    }
+    //   let colorsSection = validate.sections.find( section => section.attributes.map( att => att.type == "colors"))
 
-    revalidatePath(`/dashboard/store/${shop.slug}/products`, "page");
-    return Response.json(newProduct);
+    //   let newProduct = prisma.product.create({
+    //     data: {
+    //       name: validate.name,
+    //       description: validate.description,
+    //       slug: createSlug(validate.name),
+    //       price: validate.price,
+    //       shop_id: shop!.id,
+    //       categories: {
+    //         create: {
+    //           name: validate.category,
+    //           slug: createSlug(validate.category),
+    //         },
+    //       },
+    //       sections: {
+    //         create: [
+    //           {name: "Test",
+    //            attributes: {
+    //             create: {
+    //               type: "colors",
+    //               colors: {
+    //                 createMany: {
+    //                   data: [{ name: "test", value: ""}]
+    //                 }
+    //               }
+    //             }
+    //           }},
+    //         ]
+    //       }
+    //     },
+    //   });
+
+    //   let
+
+    // });
+    // revalidatePath(`/dashboard/store/${shop.slug}/products`, "page");
+    return Response.json({ newProduct });
   } catch (error) {
     console.error(error);
     return Response.json({ error });

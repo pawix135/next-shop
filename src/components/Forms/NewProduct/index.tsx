@@ -31,12 +31,12 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
     helpers: FormikHelpers<CreateProduct>
   ) => {
     try {
-      // let response = await fetch("/api/products/new", {
-      //   method: "POST",
-      //   body: JSON.stringify(values),
-      // });
-      // let data = await response.json();
-      // console.log(data);
+      let response = await fetch("/api/products/new", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+      let data = await response.json();
+      console.log(data);
       // redirect(
       //   `/dashboard/store/${store_slug}/products/${data.slug}`,
       //   "replace" as any
@@ -56,7 +56,11 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
       <Formik
         initialValues={initialValues}
         onSubmit={createProduct}
-        validationSchema={toFormikValidationSchema(CreateProductSchema)}
+        validationSchema={() => {
+          console.log("xd");
+
+          return toFormikValidationSchema(CreateProductSchema);
+        }}
       >
         {({ values, setFieldValue, handleBlur, handleChange, ...form }) => {
           return (

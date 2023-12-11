@@ -5,7 +5,7 @@ import { DefaultArgs } from "@prisma/client/runtime/library";
 
 export const getStore = async (params: {
   slug?: string;
-  id?: number;
+  id?: string;
 }): Promise<Store | null> => {
   let { id, slug } = params;
 

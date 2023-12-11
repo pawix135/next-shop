@@ -6,22 +6,22 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String @db.ObjectId
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
+  refresh_token      String?  @db.String
+  access_token       String? @db.String
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?  @db.Text
+  id_token           String? @db.String
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -30,15 +30,15 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String
+  userId       String @db.ObjectId
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -50,6 +50,7 @@ model User {
 }
 
 model VerificationToken {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   identifier String
   token      String   @unique
   expires    DateTime
@@ -58,12 +59,12 @@ model VerificationToken {
 }
 
 model Store {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   slug String
   products Product[]
   user User @relation(fields: [user_id], references: [id])
-  user_id String
+  user_id String @db.ObjectId
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -71,7 +72,7 @@ model Store {
 }
 
 model Product {
-  id Int @id @default(autoincrement())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   
   name String
   slug String
@@ -79,14 +80,15 @@ model Product {
 
   image String?
 
-  categories CategoriesOnProducts[]
-
   shop Store @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  shop_id Int
+  shop_id String @db.ObjectId
 
   price Float @default(0.00)
 
-  color_sets ColorsSetOnProduct[]
+  sections AttributeSection[]
+
+  category_ids String[] @db.ObjectId
+  categories ProductCategory[] @relation(fields: [category_ids], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -94,56 +96,47 @@ model Product {
   @@unique([name, slug])
 }
 
-model ColorSet {
-  id Int @id @default(autoincrement())
+model AttributeSection {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  name String
+  name String @db.String
 
-  colors Color[]
-  products ColorsSetOnProduct[]
+  product Product @relation(fields: [product_id], references: [id])
+  product_id String @db.ObjectId
 
-  @@unique([name])
+  attributes Attribute[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
-model Color {
-  id Int @id @default(autoincrement())
+model Attribute {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  type AttributeType
 
-  name String
   value String
+  name String
 
-  color_set ColorSet @relation(fields: [color_set_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  color_set_id Int
+  attribute_section AttributeSection @relation(fields: [attribute_section_id], references: [id])
+  attribute_section_id String @db.ObjectId
 
-  @@unique([value, name])
 }
 
-model ProductCategory {
-  id Int @id @default(autoincrement())
-  name String
-  slug String
+model ProductCategory{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  products CategoriesOnProducts[]
+  name String @db.String
+  slug String @db.String
+
+  products_ids String[] @db.ObjectId
+  products Product[] @relation(fields: [products_ids], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  @@unique([name, slug])
 }
 
-model ColorsSetOnProduct {
-  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  product_id Int
-  color_set ColorSet @relation(fields: [color_set_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  color_set_id Int
 
-  @@id([product_id, color_set_id])
-}
-
-model CategoriesOnProducts {
-  product Product @relation(fields: [product_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  product_id Int
-  productCategory ProductCategory @relation(fields: [product_category_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  product_category_id Int
-
-  @@id([product_id, product_category_id])
+enum AttributeType {
+  colors
+  sizes
 }
