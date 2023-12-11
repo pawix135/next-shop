@@ -1,115 +1,73 @@
 import { FieldArray, useFormikContext } from "formik";
-import { NewProduct } from "..";
 import FormikInput from "../../FormikInput";
 import { Button } from "@/components/ui/button";
 import { Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
+import { CreateProduct, ProductColorAttribute } from "@/validators/product";
 
-const ColorsController: React.FC = () => {
-  let { values, setFieldValue } = useFormikContext<NewProduct>();
-
-  if (values.colors.length < 1) return null;
+interface Props {
+  attribute: ProductColorAttribute;
+  sectionIndex: number;
+  attributeIndex: number;
+}
+const ColorsController: React.FC<Props> = ({
+  attributeIndex,
+  sectionIndex,
+  attribute,
+}) => {
+  let { setFieldValue } = useFormikContext<CreateProduct>();
 
   return (
-    <div className="flex flex-col gap-5">
-      <p>Color attributes</p>
-      <FieldArray
-        name="colors"
-        render={(colorsArrHelpers) => {
-          return (
-            <div className="flex flex-col gap-5">
-              {values.colors.map((colorSection, colorSectionI) => {
-                return (
-                  <div
-                    key={`color-section-${colorSectionI}`}
-                    className="flex flex-col gap-5"
-                  >
-                    <div className="flex flex-row items-center gap-2">
-                      <FormikInput
-                        name={`colors.${colorSectionI}.name`}
-                        id={`color-${colorSectionI}`}
-                        type="text"
-                        label="Color set name"
-                      />
-                      <Button
-                        variant={"destructive"}
-                        size={"icon"}
-                        type="button"
-                        className="self-end"
-                        onClick={() => {
-                          colorsArrHelpers.remove(colorSectionI);
+    <FieldArray
+      name={`sections.${sectionIndex}.attributes.${attributeIndex}.colors`}
+      render={(attributHelpers) => {
+        return (
+          <div className="">
+            <div className="grid grid-flow-row grid-cols-3 gap-5">
+              {attribute.colors &&
+                attribute.colors.map((color, colorIndex) => {
+                  return (
+                    <div
+                      className="flex flex-row gap-2 items-center"
+                      key={`color-${sectionIndex}-${attributeIndex}-${colorIndex}`}
+                    >
+                      <input
+                        type="color"
+                        className="appearance-none border-none w-[50px] h-full"
+                        name={`sections.${sectionIndex}.attributes.${attributeIndex}.colors.${colorIndex}.value`}
+                        onChange={(e) => undefined}
+                        onBlur={(e) => {
+                          setFieldValue(
+                            `sections.${sectionIndex}.attributes.${attributeIndex}.colors.${colorIndex}.value`,
+                            e.target.value
+                          );
                         }}
-                      >
-                        <Cross1Icon />
-                      </Button>
+                      />
+                      <FormikInput
+                        id={`sections.${sectionIndex}.attributes.${attributeIndex}.colors.${colorIndex}.name`}
+                        name={`sections.${sectionIndex}.attributes.${attributeIndex}.colors.${colorIndex}.name`}
+                        label="Color name"
+                      />
                     </div>
-                    <FieldArray
-                      name={`colors.${colorSectionI}.colors`}
-                      render={(arrHelpers) => {
-                        return (
-                          <div className="grid grid-flow-row grid-cols-2 gap-5 flex-wrap border-2 p-2 shadow-md shadow-black">
-                            {colorSection.colors.map((color, colorI) => {
-                              return (
-                                <div
-                                  key={`${colorSection.name}-${colorI}`}
-                                  className="flex flex-row gap-5 items-center"
-                                >
-                                  <input
-                                    type="color"
-                                    className="appearance-none border-none w-[50px] h-full"
-                                    name={`colors.${colorSectionI}.colors.${colorI}.value`}
-                                    onChange={() => {
-                                      return;
-                                    }}
-                                    onBlur={(e: any) => {
-                                      setFieldValue(
-                                        `colors.${colorSectionI}.colors.${colorI}.value`,
-                                        e.target.value
-                                      );
-                                    }}
-                                  />
-                                  <FormikInput
-                                    name={`colors.${colorSectionI}.colors.${colorI}.name`}
-                                    id={`colors-${colorSectionI}-input-${colorI}`}
-                                    label="Color name"
-                                  />
-                                  <Button
-                                    type="button"
-                                    className="self-end"
-                                    variant={"destructive"}
-                                    size={"icon"}
-                                    onClick={() => {
-                                      arrHelpers.remove(colorI);
-                                    }}
-                                  >
-                                    <Cross1Icon />
-                                  </Button>
-                                </div>
-                              );
-                            })}
-                            <Button
-                              className="w-[50px] self-center"
-                              type="button"
-                              onClick={() => {
-                                arrHelpers.push({
-                                  name: "",
-                                  value: "#000000",
-                                });
-                              }}
-                            >
-                              <PlusIcon />
-                            </Button>
-                          </div>
-                        );
-                      }}
-                    />
-                  </div>
-                );
-              })}
+                  );
+                })}
+              <Button
+                type="button"
+                className="self-center"
+                size={"icon"}
+                onClick={() => {
+                  attributHelpers.push({
+                    value: "#ffffff",
+                    name: "New color name",
+                  });
+                }}
+              >
+                <PlusIcon />
+              </Button>
             </div>
-          );
-        }}
-      />
-    </div>
+          </div>
+        );
+      }}
+    />
   );
 };
 

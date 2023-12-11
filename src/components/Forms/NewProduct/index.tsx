@@ -2,37 +2,13 @@
 import { Form, Formik, FormikHelpers } from "formik";
 import FormikInput from "../FormikInput";
 import { Button } from "@/components/ui/button";
-import FormController from "./FormController";
-import {
-  CreateProduct,
-  CreateProductSchema,
-  ProductColors,
-} from "@/validators/product";
+import { CreateProduct, CreateProductSchema } from "@/validators/product";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import ColorsController from "./ColorsController";
-import { toFormikValidate, toFormikValidationSchema } from "zod-formik-adapter";
-import { useRouter } from "next/navigation";
-
-export interface NewProduct {
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  sale_price?: number;
-  colors: ProductColors[];
-  sizes: Sizes[];
-}
-
-type Size = {
-  value: string;
-  text: string;
-};
-
-type Sizes = {
-  name: string;
-  sizes: Size[];
-};
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import SectionFrom from "@/components/Forms/AttributeSections";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface Props {
   store_slug: string;
@@ -40,7 +16,6 @@ interface Props {
 
 const NewProductForm: React.FC<Props> = ({ store_slug }) => {
   let { toast } = useToast();
-  let nav = useRouter();
 
   let initialValues: CreateProduct = {
     category: "",
@@ -48,7 +23,7 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
     name: "",
     price: 0.0,
     store_slug,
-    colors: [],
+    sections: [],
   };
 
   const createProduct = async (
@@ -56,15 +31,16 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
     helpers: FormikHelpers<CreateProduct>
   ) => {
     try {
-      let response = await fetch("/api/products/new", {
-        method: "POST",
-        body: JSON.stringify(values),
-      });
-
-      let data = await response.json();
-      console.log(data);
-
-      nav.replace(`/dashboard/store/${store_slug}/products/${data.slug}`);
+      // let response = await fetch("/api/products/new", {
+      //   method: "POST",
+      //   body: JSON.stringify(values),
+      // });
+      // let data = await response.json();
+      // console.log(data);
+      // redirect(
+      //   `/dashboard/store/${store_slug}/products/${data.slug}`,
+      //   "replace" as any
+      // );
     } catch (error) {
       toast({
         title: "Error",
@@ -82,18 +58,20 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
         onSubmit={createProduct}
         validationSchema={toFormikValidationSchema(CreateProductSchema)}
       >
-        {({ values, setFieldValue, ...form }) => {
+        {({ values, setFieldValue, handleBlur, handleChange, ...form }) => {
           return (
             <div className="flex flex-row gap-5 w-full ">
-              <FormController />
-              <Form className="flex flex-col gap-5 border-secondary border-2 w-full p-2 rounded-md">
+              <Form className="flex flex-col gap-5 border-secondary w-full p-2">
                 <FormikInput name="name" id="name" type="text" label="Name" />
-                <FormikInput
-                  name="description"
-                  id="description"
-                  type="text"
-                  label="Description"
-                />
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    name="description"
+                    id="description"
+                  />
+                </div>
                 <FormikInput
                   name="price"
                   type="number"
@@ -103,7 +81,7 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
                   label="Price"
                 />
                 <FormikInput name="category" id="category" label="Category" />
-                <ColorsController />
+                <SectionFrom />
                 <Button type="submit" className="w-[200px]">
                   Create new product
                 </Button>
