@@ -51,7 +51,7 @@ const SizesController: React.FC<Props> = ({
   attributeIndex,
   sectionIndex,
 }) => {
-  let { setFieldValue, values } = useFormikContext<CreateProduct>();
+  let { setFieldValue, values, errors } = useFormikContext<CreateProduct>();
 
   const [type, setType] = useState<"clothes" | "shoes" | "">("");
 
@@ -65,6 +65,8 @@ const SizesController: React.FC<Props> = ({
         return [];
     }
   }, [type]);
+
+  console.log(errors);
 
   return (
     <div className="flex flex-row gap-3">
