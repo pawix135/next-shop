@@ -1,6 +1,16 @@
 import NewProductForm from "@/components/Forms/NewProduct";
 import { notFound } from "next/navigation";
 
+interface MetadataProps {
+  params: {
+    slug: string;
+    product_slug: string;
+  };
+}
+export const metadata = {
+  title: "Create new product",
+};
+
 interface Props {
   params: {
     slug: string;
