@@ -73,15 +73,6 @@ export type ProductAttribute = z.infer<typeof ProductAttributeSchema>;
 export type ProductAtrributeType = z.infer<typeof ProductAttributeTypeSchema>;
 export type ProductDragData = z.infer<typeof ProductDragDataSchema>;
 
+export type ProductAttributeSection = z.infer<typeof ProductSectionSchema>;
 export type ProductColorAttribute = z.infer<typeof ProductColorAttributeSchema>;
 export type ProductSizeAttribute = z.infer<typeof ProductSizeAttributeSchema>;
-/**
- *
- *  sections[
- *    {
- *      name
- *      attributes
- *    }
- *  ]
- *
- */

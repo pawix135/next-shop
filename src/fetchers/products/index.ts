@@ -3,15 +3,36 @@ import { prisma } from "@/db/prisma";
 
 interface GetProductProps {
   product_slug?: string;
-  id?: number;
+  product_id?: string;
+  shop_slug: string;
 }
-export const getProduct = async ({ product_slug, id }: GetProductProps) => {
-  if (!product_slug && !id) throw Error("Pass slug or id of a product!");
-
+export const getProduct = async ({
+  product_slug,
+  shop_slug,
+  product_id,
+}: GetProductProps) => {
   let product = await prisma.product.findFirst({
     where: {
-      id,
+      id: product_id,
       OR: [{ slug: product_slug }],
+      AND: {
+        shop: {
+          slug: shop_slug,
+        },
+      },
+    },
+    include: {
+      categories: true,
+      sections: {
+        include: {
+          attributes: {
+            include: {
+              color_attributes: true,
+              size_attributes: true,
+            },
+          },
+        },
+      },
     },
   });
 

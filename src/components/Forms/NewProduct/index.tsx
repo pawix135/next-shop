@@ -3,19 +3,19 @@ import { Form, Formik, FormikHelpers } from "formik";
 import FormikInput from "../FormikInput";
 import { Button } from "@/components/ui/button";
 import { CreateProduct, CreateProductSchema } from "@/validators/product";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import SectionFrom from "@/components/Forms/AttributeSections";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+import { Route } from "next";
 
 interface Props {
   store_slug: string;
 }
 
 const NewProductForm: React.FC<Props> = ({ store_slug }) => {
-  let { toast } = useToast();
+  let nav = useRouter();
 
   let initialValues: CreateProduct = {
     category: "",
@@ -37,17 +37,9 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
       });
       let data = await response.json();
       console.log(data);
-      // redirect(
-      //   `/dashboard/store/${store_slug}/products/${data.slug}`,
-      //   "replace" as any
-      // );
+      nav.replace(("/dashboard/store/" + store_slug) as Route);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-        action: <ToastAction altText="Goto ">Undo</ToastAction>,
-        variant: "destructive",
-      });
+      console.log(error);
     }
   };
 
@@ -56,11 +48,7 @@ const NewProductForm: React.FC<Props> = ({ store_slug }) => {
       <Formik
         initialValues={initialValues}
         onSubmit={createProduct}
-        validationSchema={() => {
-          console.log("xd");
-
-          return toFormikValidationSchema(CreateProductSchema);
-        }}
+        validationSchema={toFormikValidationSchema(CreateProductSchema)}
       >
         {({ values, setFieldValue, handleBlur, handleChange, ...form }) => {
           return (
