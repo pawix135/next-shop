@@ -101,7 +101,7 @@ model AttributeSection {
 
   name String @db.String
 
-  product Product @relation(fields: [product_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   product_id String @db.ObjectId
 
   attributes Attribute[]
@@ -112,13 +112,38 @@ model AttributeSection {
 
 model Attribute {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  name String
   type AttributeType
 
-  value String
-  name String
+  size_attributes SizeAttribute[]
+  color_attributes ColorAttribute[]
 
-  attribute_section AttributeSection @relation(fields: [attribute_section_id], references: [id])
+  attribute_section AttributeSection @relation(fields: [attribute_section_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   attribute_section_id String @db.ObjectId
+
+
+}
+
+model SizeAttribute {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  attribute Attribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attribute_id String @db.ObjectId
+
+  name String @db.String
+  value String @db.String
+
+}
+
+model ColorAttribute {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  attribute Attribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attribute_id String @db.ObjectId
+
+  name String @db.String
+  value String @db.String
 
 }
 

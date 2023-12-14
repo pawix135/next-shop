@@ -1,13 +1,9 @@
 import { auth } from "@/auth/auth";
 import { createSlug } from "@/lib/slug";
-import {
-  CreateProductSchema,
-  ProductColorAttribute,
-  ProductSizeAttribute,
-} from "@/validators/product";
+import { CreateProductSchema } from "@/validators/product";
 import { prisma } from "@/db/prisma";
-import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
+import { sectionToPrismaCreate } from "@/utils/nestedSectionCreate";
+import { redirect } from "next/navigation";
 
 export const revalidate = 0;
 
@@ -32,56 +28,14 @@ export const POST = async (req: Request) => {
       },
     });
 
+    console.log(validate.sections);
+
     if (!shop) throw Error("Shop with given slug not found!");
 
-    let sizesSection = await Promise.all(
-      validate.sections.map((section) => {
-        let sizes = section.attributes.filter(
-          (att) => att.type == "sizes"
-        ) as ProductSizeAttribute[];
-        console.log(sizes);
-
-        return sizes.map((size) => {
-          return {
-            type: size.type,
-            colors: {
-              createMany: {
-                data: size.sizes,
-              },
-            },
-          };
-        });
-      })
-    );
-
-    let colorsSection = await Promise.all(
-      validate.sections.map((section) => {
-        let colors = section.attributes.filter(
-          (att) => att.type == "colors"
-        ) as ProductColorAttribute[];
-
-        return {
-          name: section.name,
-          attributes: {
-            create: [
-              ...colors.map((color) => {
-                return {
-                  type: color.type,
-                  colors: {
-                    createMany: {
-                      data: color.colors,
-                    },
-                  },
-                };
-              }),
-              ...sizesSection[0],
-            ],
-          },
-        };
-      })
-    );
-
-    console.log(colorsSection);
+    let sections: any | undefined =
+      validate.sections && validate.sections.length > 0
+        ? await Promise.all(sectionToPrismaCreate(validate.sections))
+        : undefined;
 
     let newProduct = await prisma.product.create({
       data: {
@@ -96,52 +50,11 @@ export const POST = async (req: Request) => {
             slug: createSlug(validate.category),
           },
         },
-        sections: {
-          create: [...colorsSection],
-        },
+        sections: sections ? sections[0] : undefined,
       },
     });
 
-    // let xd =await prisma.$transaction(async (transactionManager) => {
-
-    //   let colorsSection = validate.sections.find( section => section.attributes.map( att => att.type == "colors"))
-
-    //   let newProduct = prisma.product.create({
-    //     data: {
-    //       name: validate.name,
-    //       description: validate.description,
-    //       slug: createSlug(validate.name),
-    //       price: validate.price,
-    //       shop_id: shop!.id,
-    //       categories: {
-    //         create: {
-    //           name: validate.category,
-    //           slug: createSlug(validate.category),
-    //         },
-    //       },
-    //       sections: {
-    //         create: [
-    //           {name: "Test",
-    //            attributes: {
-    //             create: {
-    //               type: "colors",
-    //               colors: {
-    //                 createMany: {
-    //                   data: [{ name: "test", value: ""}]
-    //                 }
-    //               }
-    //             }
-    //           }},
-    //         ]
-    //       }
-    //     },
-    //   });
-
-    //   let
-
-    // });
-    // revalidatePath(`/dashboard/store/${shop.slug}/products`, "page");
-    return Response.json({ newProduct });
+    return Response.json({ ok: true });
   } catch (error) {
     console.error(error);
     return Response.json({ error });

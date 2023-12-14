@@ -12,7 +12,7 @@ const ProductPage: React.FC<Props> = async ({
 }) => {
   if (!slug) notFound();
 
-  let product = await getProduct({ product_slug });
+  let product = await getProduct({ product_slug, shop_slug: slug });
 
   if (!product) notFound();
 
